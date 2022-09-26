@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import validator from 'validator';
 import { signup } from './services/userService';
 
-function Signup(props) {
+function Signup() {
+
+  const [isAuth, onSignup] = useOutletContext();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -12,6 +15,13 @@ function Signup(props) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuth) {
+      navigate('/');
+    }
+  }, [])
 
   const submitForm = async () => {
     setIsLoading(true);
@@ -25,7 +35,7 @@ function Signup(props) {
       const result = await signup(formObject);
       if (result !== 400) {
         const user = result;
-        props.onSignup(user);
+        onSignup(user);
         return setIsLoading(false);
       }
       setIsLoading(false);
@@ -48,7 +58,7 @@ function Signup(props) {
 
   if (!isLoading) {
     return (
-      <div className='col-6 mx-auto d-flex flex-column align-items-center mt-5'>
+      <div className='col-sm-6 col-12 mx-auto d-flex flex-column align-items-center mt-5'>
         <h3>
           Sign Up
         </h3>
@@ -89,6 +99,20 @@ function Signup(props) {
         ) :
           <>
           </>}
+
+
+        <div className='w-100 mt-5'>
+          <div className='fs-4'>
+            have an account?
+          </div>
+          <Link to={'/login'}>
+            <Button variant="primary" onClick={submitForm}>
+              Login
+            </Button>
+          </Link>
+
+        </div>
+
       </div>
     );
   }

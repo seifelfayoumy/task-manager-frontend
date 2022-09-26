@@ -30,3 +30,17 @@ export async function signup(user) {
   }
 
 }
+
+export async function login(user) {
+  try {
+    const response = await axios.post(apiUrl + 'users/login', user);
+    if (response.status == 200) {
+      localStorage.setItem('jwt-token', response.data.token);
+      return response.data.userObject;
+    }
+  } catch (error) {
+    return error.response.status;
+  }
+
+}
+
