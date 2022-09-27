@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiUrl = 'http://localhost:3005/';
+const apiUrl = 'https://seif-task-manager-api.herokuapp.com/';
 
 export async function createTask(task) {
   try {
@@ -9,7 +9,7 @@ export async function createTask(task) {
         'Authorization': 'Bearer ' + localStorage.getItem('jwt-token')
       }
     });
-    if (response.status == 201) {
+    if (response.status === 201) {
       return response.data;
     }
   } catch (error) {
@@ -20,13 +20,29 @@ export async function createTask(task) {
 
 export async function updateTask(task) {
   try {
-    const response = await axios.patch(apiUrl + 'tasks', task, {
+    const response = await axios.post(apiUrl + 'tasks/update', task, {
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('jwt-token')
       }
     });
-    if (response.status == 200) {
+    if (response.status === 200) {
       return response.data;
+    }
+  } catch (error) {
+    return error.response.status;
+  }
+
+}
+
+export async function deleteTask(task) {
+  try {
+    const response = await axios.post(apiUrl + 'tasks/delete', task, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('jwt-token')
+      }
+    });
+    if (response.status === 200) {
+      return;
     }
   } catch (error) {
     return error.response.status;

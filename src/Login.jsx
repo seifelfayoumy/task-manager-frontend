@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Spinner } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
@@ -31,8 +32,8 @@ function Login() {
       const result = await login(formObject);
       if (result !== 400) {
         const user = result;
-        onLogin(user);
-        return setIsLoading(false);
+        return onLogin(user);
+        
       }
       setIsLoading(false);
       setIsError(true);
@@ -97,6 +98,11 @@ function Login() {
 
       </div>
     );
+  } else {
+    return (
+      <Spinner animation="border mt-4 mb-2 ms-5" role="status">
+      </Spinner>
+    )
   }
 
 }

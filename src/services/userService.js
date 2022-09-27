@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiUrl = 'http://localhost:3005/';
+const apiUrl = 'https://seif-task-manager-api.herokuapp.com/';
 
 export async function getUser() {
   try {
@@ -9,7 +9,7 @@ export async function getUser() {
         'Authorization': 'Bearer ' + localStorage.getItem('jwt-token')
       }
     });
-    if (response.status == 200) {
+    if (response.status === 200) {
       return response.data;
     }
   } catch (error) {
@@ -21,7 +21,7 @@ export async function getUser() {
 export async function signup(user) {
   try {
     const response = await axios.post(apiUrl + 'users/signup', user);
-    if (response.status == 201) {
+    if (response.status === 201) {
       localStorage.setItem('jwt-token', response.data.token);
       return response.data.userObject;
     }
@@ -34,9 +34,73 @@ export async function signup(user) {
 export async function login(user) {
   try {
     const response = await axios.post(apiUrl + 'users/login', user);
-    if (response.status == 200) {
+    if (response.status === 200) {
       localStorage.setItem('jwt-token', response.data.token);
       return response.data.userObject;
+    }
+  } catch (error) {
+    return error.response.status;
+  }
+
+}
+export async function logout() {
+  try {
+    const response = await axios.post(apiUrl + 'users/logout', {}, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('jwt-token')
+      }
+    });
+    if (response.status === 200) {
+      localStorage.setItem('jwt-token', '');
+      return;
+    }
+  } catch (error) {
+    return error.response.status;
+  }
+
+}
+export async function logoutAll() {
+  try {
+    const response = await axios.post(apiUrl + 'users/logout-all', {}, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('jwt-token')
+      }
+    });
+    if (response.status === 200) {
+      localStorage.setItem('jwt-token', '');
+      return;
+    }
+  } catch (error) {
+    return error.response.status;
+  }
+
+}
+export async function updateAccount(account) {
+  try {
+    const response = await axios.post(apiUrl + 'users/update', account, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('jwt-token')
+      }
+    });
+    if (response.status === 200) {
+      return;
+    }
+  } catch (error) {
+    return error.response.status;
+  }
+
+}
+
+export async function deleteAccount() {
+  try {
+    const response = await axios.post(apiUrl + 'users/delete', {}, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('jwt-token')
+      }
+    });
+    if (response.status === 200) {
+      localStorage.setItem('jwt-token', '');
+      return;
     }
   } catch (error) {
     return error.response.status;

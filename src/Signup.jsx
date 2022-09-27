@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Spinner } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
@@ -18,10 +19,10 @@ function Signup() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuth) {
+    if (isAuth === true) {
       navigate('/');
     }
-  }, [])
+  }, []);
 
   const submitForm = async () => {
     setIsLoading(true);
@@ -35,8 +36,7 @@ function Signup() {
       const result = await signup(formObject);
       if (result !== 400) {
         const user = result;
-        onSignup(user);
-        return setIsLoading(false);
+        return onSignup(user);
       }
       setIsLoading(false);
       setIsError(true);
@@ -115,6 +115,11 @@ function Signup() {
 
       </div>
     );
+  } else {
+    return (
+      <Spinner animation="border mt-4 mb-2 ms-5" role="status">
+      </Spinner>
+    )
   }
 
 }

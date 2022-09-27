@@ -4,9 +4,10 @@ import Form from 'react-bootstrap/Form';
 import { createTask } from "./services/taskService";
 import Button from 'react-bootstrap/Button';
 import Task from "./Task";
+import { Spinner } from "react-bootstrap";
 
 function Tasks() {
-  const [isAuth, onSignup, onLogin, tasks] = useOutletContext();
+  const [isAuth, onSignup, onLogin, tasks, onNewTask] = useOutletContext();
   const navigate = useNavigate();
 
   const [taskTitle, setTaskTitle] = useState('');
@@ -15,7 +16,7 @@ function Tasks() {
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    if (!isAuth) {
+    if (isAuth === false) {
       navigate('/signup');
     }
   }, []);
@@ -32,7 +33,8 @@ function Tasks() {
       if (result !== 400 && result !== 401) {
         setTaskTitle('');
         setTaskDescription('');
-        return setIsLoading(false);
+        setIsLoading(false);
+        return onNewTask();
       }
       setIsLoading(false);
       setIsError(true);
@@ -57,13 +59,16 @@ function Tasks() {
           </div>
           <div className="col">
             <Form.Group className="mb-3">
-              <Form.Label>Description (optional)</Form.Label>
+              <Form.Label>Description</Form.Label>
               <Form.Control type="text" onChange={(e) => setTaskDescription(e.target.value)} />
             </Form.Group>
           </div>
-          <Button variant="primary" onClick={submitForm} className={!isValidForm() ? 'disabled' : ''}>
-            Create Task!
-          </Button>
+          <div className="">
+            <Button variant="primary w-100" onClick={submitForm} className={!isValidForm() ? 'disabled' : ''}>
+              Create Task!
+            </Button>
+          </div>
+
           {isError ? (
             <>
               <h3 className='text-danger'>
@@ -76,18 +81,20 @@ function Tasks() {
         </div>
 
         <div className="row">
-          {
-            tasks.map((task) =>
-            (<>
-              <Task title={task.title} description={task.description} isCompleted={task.isCompleted} _id={task._id} />
-            </>)
-            )
-          }
+          {tasks.map(task => {
+            const { _id, title, description, isCompleted, createdAt, updatedAt } = task;
+            return <Task key={_id} taskTitle={title} taskDescription={description} isCompleted={isCompleted} _id={_id} createDate={createdAt} updateDate={updatedAt} onNewTask={onNewTask} />
+          })}
         </div>
 
       </div>
     );
 
+  } else {
+    return (
+      <Spinner animation="border mt-4 mb-2 ms-5" role="status">
+      </Spinner>
+    )
   }
 
 

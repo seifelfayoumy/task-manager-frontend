@@ -1,15 +1,17 @@
 import logo from './logo.svg';
 import './App.css';
-import { getUser, signup } from './services/userService';
+import { getUser, logout, logoutAll, signup } from './services/userService';
 import { useState, useEffect } from 'react';
 import Signup from './Signup';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import { createBrowserRouter, Outlet, useNavigate, useOutletContext } from 'react-router-dom';
+import { createBrowserRouter, Link, Outlet, useNavigate, useOutletContext } from 'react-router-dom';
+import { Spinner } from 'react-bootstrap';
 
 function App() {
 
   const [isAuth, setIsAuth] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
   const context = useOutletContext();
 
@@ -20,7 +22,7 @@ function App() {
 
   const auth = async () => {
     const data = await getUser();
-    if (data !== 401) {
+    if (data !== 401 && data !== 400) {
       setIsLoading(false);
 
       setIsAuth(true);
@@ -29,12 +31,12 @@ function App() {
       setEmail(data.email);
       setTaks(data.tasks);
 
-      navigate('/home')
+      navigate('/home');
       return setIsAuth(true);
     }
-    navigate('/signup')
-    setIsLoading(false);
     setIsAuth(false);
+    navigate('/signup');
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -47,7 +49,7 @@ function App() {
     setLastName(user.lastName);
     setEmail(user.email);
 
-    navigate('/home');
+    window.location.reload(false);
   }
 
   const onLogin = (user) => {
@@ -57,7 +59,40 @@ function App() {
     setEmail(user.email);
     setTaks(user.tasks);
 
-    navigate('/home');
+    window.location.reload(false);
+  }
+
+  const onLogout = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    const result = await logout();
+    if (result !== 400 && result !== 401) {
+      setIsAuth(false);
+      navigate('/signup')
+      return setIsLoading(false);
+    }
+    setIsLoading(false);
+    setIsError(true);
+  }
+  const onLogoutAll = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    const result = await logoutAll();
+    if (result !== 400 && result !== 401) {
+      setIsAuth(false);
+      navigate('/signup')
+      return setIsLoading(false);
+    }
+    setIsLoading(false);
+    setIsError(true);
+  }
+
+  const onNewTask = async () => {
+    auth();
+  }
+
+  const onUpdateAccount = async () => {
+    window.location.reload(false);
   }
 
   if (!isLoading) {
@@ -80,23 +115,16 @@ function App() {
                     </div>
                     <div>
                       <NavDropdown title="settings" id="basic-nav-dropdown" className='text-black fs-3'>
-                        <NavDropdown.Item href="#action/3.2">
-                          Change email
-                        </NavDropdown.Item>
-                        <NavDropdown.Item href="#action/3.2">
-                          Change first name
-                        </NavDropdown.Item>
-                        <NavDropdown.Item href="#action/3.2">
-                          Change last name
-                        </NavDropdown.Item>
-                        <NavDropdown.Item href="#action/3.2">
-                          Change password
-                        </NavDropdown.Item>
+                        <Link to={'/update-account'}>
+                          <NavDropdown.Item href='/update-account'>
+                            Update Account
+                          </NavDropdown.Item>
+                        </Link>
                         <NavDropdown.Divider />
-                        <NavDropdown.Item href="#action/3.4">
+                        <NavDropdown.Item onClick={onLogout}>
                           Logout
                         </NavDropdown.Item>
-                        <NavDropdown.Item href="#action/3.4">
+                        <NavDropdown.Item onClick={onLogoutAll}>
                           Logout on all devices
                         </NavDropdown.Item>
                       </NavDropdown>
@@ -111,11 +139,16 @@ function App() {
 
         </div>
         <div className='row'>
-          <Outlet context={[isAuth, onSignup, onLogin, tasks]}/>
+          <Outlet context={[isAuth, onSignup, onLogin, tasks, onNewTask, firstName, lastName, email, onUpdateAccount]} />
         </div>
       </div>
     );
 
+  } else {
+    return (
+      <Spinner animation="border mt-4 mb-2 ms-5" role="status">
+      </Spinner>
+    )
   }
 }
 
